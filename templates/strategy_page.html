@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OI Data Table</title>
+
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <script>
+        let isFetching = false;
+
+        async function fetchData() {
+            if (isFetching) return;
+            isFetching = true;
+
+            let col4Filter1 = document.getElementById("col4Filter1").value || null;
+            let col6Filter1 = document.getElementById("col6Filter1").value || null;
+            let col4Filter2 = document.getElementById("col4Filter2").value || null;
+            let col6Filter2 = document.getElementById("col6Filter2").value || null;
+            let export_csv = document.getElementById("exportCsv").checked ? "true" : "false";
+            
+            let response = await fetch(`/data?col4_1=${col4Filter1}&col6_1=${col6Filter1}&col4_2=${col4Filter2}&col6_2=${col6Filter2}&csv=${export_csv}`);
+            let data = await response.json();
+            
+            populateTable(data.call, "table1-body");
+            populateTable(data.put, "table2-body");
+
+            isFetching = false;
+        }
+
+        function populateTable(data, tableId) {
+            let tableBody = document.getElementById(tableId);
+            tableBody.innerHTML = "";
+
+            data.forEach((row, index) => {
+                
+                let tr = `<tr>
+                    <td>${index + 1}</td>
+                    <td>${row.index_name}</td><td>${row.ltp}</td><td>${row.call_oi}</td>
+                    <td>${row.call_put_oi_ratio}</td><td>${row.put_oi}</td><td>${row.ltp_strike_ratio}</td>
+                    <td>${row.strike}</td>
+                </tr>`;
+                tableBody.innerHTML += tr;
+            });
+        }
+
+        function sortTable(tableId, colIndex) {
+            let table = document.getElementById(tableId);
+            let tbody = table.querySelector("tbody");
+            let rows = Array.from(tbody.rows);
+            let asc = table.getAttribute("data-sort") === "asc";
+
+            rows.sort((a, b) => {
+                let valA = parseFloat(a.cells[colIndex].innerText) || 0;
+                let valB = parseFloat(b.cells[colIndex].innerText) || 0;
+                return asc ? valA - valB : valB - valA;
+            });
+
+            table.setAttribute("data-sort", asc ? "desc" : "asc");
+            tbody.innerHTML = "";
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        window.onload = () => {
+            fetchData();
+            setInterval(fetchData, 240000);  // Auto-refresh every 60 seconds
+        };
+
+        async function callCustomAPI() {
+    try {
+        let response = await fetch('/custom-api-endpoint', { method: 'GET' });
+
+        if (response.status === 200) {
+            document.getElementById("apiResponse").innerText = "CSV Downloaded!";
+        } else {
+            document.getElementById("apiResponse").innerText = "Unexpected response from server.";
+        }
+    } catch (error) {
+        console.error("Error calling API:", error);
+        document.getElementById("apiResponse").innerText = "Failed to initiate CSV download.";
+    }
+}
+
+    document.addEventListener("DOMContentLoaded", function() {
+        let authButton = document.getElementById("openAuthFormBtn");
+        if (authButton) {
+            authButton.addEventListener("click", function() {
+                window.location.href = "/auth-form"; // Redirect to the new page
+            });
+        } else {
+            console.error("Button element not found!");
+
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function() {
+    let exportCheckbox = document.getElementById("exportCsv");
+
+    if (exportCheckbox) {
+        exportCheckbox.addEventListener("change", function() {
+            this.value = this.checked ? "true" : "false";
+        });
+    } else {
+        console.error("Checkbox element not found!");
+    }
+});
+
+
+    </script>
+</head>
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand">Algo Trading Dashboard</a>
+            <button class="btn btn-primary my-3" onclick="callCustomAPI()">Generate Stocks List</button>
+            <p id="apiResponse" class="mt-2 text-success"></p>
+            
+            <!-- New Button to Open Auth Form Page -->
+            <button id="openAuthFormBtn" class="btn btn-primary btn-lg shadow">Broker Login</button>
+        </div>
+
+ 
+
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <h2 class="text-center text-success">OI Tables</h2>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="exportCsv">
+            <label class="form-check-label" for="exportCsv">
+                Export to CSV
+            </label>
+        </div>
+        
+        
+
+        <div class="row">
+            <!-- Call Table -->
+            <div class="col-md-6">
+                <h3 class="text-center">Call Table</h3>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">Filter by Call OI/ Put OI</label>
+                        <input type="number" id="col4Filter1" class="form-control" step="any" oninput="fetchData()">
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Filter by LTP/Strike</label>
+                        <input type="number" id="col6Filter1" class="form-control" step="any" oninput="fetchData()">
+                    </div>
+                </div>
+                <table id="table1" class="table table-bordered table-hover" data-sort="asc">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Sr. No</th>
+                            <th>Stock</th><th>LTP</th><th>Call OI</th>
+                            <th style="cursor: pointer;" onclick="sortTable('table1', 3)">Call OI /Put OI 🔽</th>
+                            <th>Put OI</th>
+                            <th style="cursor: pointer;" onclick="sortTable('table1', 5)">LTP/Strike 🔽</th>
+                            <th>Strike</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table1-body"></tbody>
+                </table>
+            </div>
+
+            <!-- Put Table -->
+            <div class="col-md-6">
+                <h3 class="text-center">Put Table</h3>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">Filter by Put OI/Call OI</label>
+                        <input type="number" id="col4Filter2" class="form-control" step="any" oninput="fetchData()">
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Filter by Strike/LTP</label>
+                        <input type="number" id="col6Filter2" class="form-control" step="any" oninput="fetchData()">
+                    </div>
+                </div>
+                <table id="table2" class="table table-bordered table-hover" data-sort="asc">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Sr. No</th>
+                            <th>Stock</th><th>LTP</th><th>Call OI</th>
+                            <th style="cursor: pointer;" onclick="sortTable('table2', 3)">Put OI/Call OI 🔽</th>
+                            <th>Put OI</th>
+                            <th style="cursor: pointer;" onclick="sortTable('table2', 5)">Strike/LTP 🔽</th>
+                            <th>Strike</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table2-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
