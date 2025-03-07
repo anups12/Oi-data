@@ -138,7 +138,7 @@ def filter_call_put(data, call_filter_oi=None, call_filter_strike=None, put_filt
     filtered_put = [
         entry for entry in data["put"]
         if (put_filter_oi is None or entry["call_put_oi_ratio"] >= put_filter_oi) and
-           (put_filter_strike is None or entry["ltp_strike_ratio"] <= put_filter_strike)
+           (put_filter_strike is None or entry["ltp_strike_ratio"] >= put_filter_strike)
     ]
 
     return {"call": filtered_call, "put": filtered_put}
@@ -157,7 +157,6 @@ def auth_form():
 def create_token():
     import json
     data = json.loads(request.data)
-    print('data here')
     # app_id_hash = hashlib.sha256(f'{client_api_key}:{client_secret_key}'.encode()).hexdigest()
 
     FYERS_CLIENT_ID = data.get('client_id')
@@ -172,8 +171,8 @@ def create_token():
 def callback_login():
     auth_code = request.args.get('auth_code')
 
-    FYERS_SECRET_KEY = "IAAT3IVFD8"
-    FYERS_CLIENT_ID = "3O6JZX3WDM-100"
+    FYERS_SECRET_KEY = "H6I0D8T2OT"
+    FYERS_CLIENT_ID = "RGB1I5PD6F-100"
     REDIRECT_URI = "http://127.0.0.1:5000/token"
     
     if auth_code:
@@ -226,7 +225,7 @@ def get_data():
 
     # Convert to a list for fast processing
     list_provided = df["Stock"].drop_duplicates().tolist()
-    for index_name in list_provided:
+    for index_name in list_provided[:30]:
         t2 = time.time()
         url = "https://api-t1.fyers.in/data/options-chain-v3"
         params = {"symbol": index_name, "strikecount": "15"}

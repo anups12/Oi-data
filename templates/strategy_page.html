@@ -70,7 +70,7 @@
 
         async function callCustomAPI() {
     try {
-        let response = await fetch('/custom-api-endpoint', { method: 'GET' });
+        let response = await fetch('/download_csv', { method: 'GET' });
 
         if (response.status === 200) {
             document.getElementById("apiResponse").innerText = "CSV Downloaded!";
@@ -156,9 +156,9 @@
                         <tr>
                             <th>Sr. No</th>
                             <th>Stock</th><th>LTP</th><th>Call OI</th>
-                            <th style="cursor: pointer;" onclick="sortTable('table1', 3)">Call OI /Put OI 🔽</th>
+                            <th style="cursor: pointer;" onclick="sortTable('table1', 4)">Call OI /Put OI 🔽</th>
                             <th>Put OI</th>
-                            <th style="cursor: pointer;" onclick="sortTable('table1', 5)">LTP/Strike 🔽</th>
+                            <th style="cursor: pointer;" onclick="sortTable('table1', 6)">LTP/Strike 🔽</th>
                             <th>Strike</th>
                         </tr>
                     </thead>
@@ -184,9 +184,9 @@
                         <tr>
                             <th>Sr. No</th>
                             <th>Stock</th><th>LTP</th><th>Call OI</th>
-                            <th style="cursor: pointer;" onclick="sortTable('table2', 3)">Put OI/Call OI 🔽</th>
+                            <th style="cursor: pointer;" onclick="sortTable('table2', 4)">Put OI/Call OI 🔽</th>
                             <th>Put OI</th>
-                            <th style="cursor: pointer;" onclick="sortTable('table2', 5)">Strike/LTP 🔽</th>
+                            <th style="cursor: pointer;" onclick="sortTable('table2', 6)">Strike/LTP 🔽</th>
                             <th>Strike</th>
                         </tr>
                     </thead>
