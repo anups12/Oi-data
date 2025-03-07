@@ -171,9 +171,10 @@ def create_token():
 def callback_login():
     auth_code = request.args.get('auth_code')
 
-    FYERS_SECRET_KEY = "H6I0D8T2OT"
-    FYERS_CLIENT_ID = "RGB1I5PD6F-100"
-    REDIRECT_URI = "http://127.0.0.1:5000/token"
+    #Todo: Enter details here
+    FYERS_SECRET_KEY = "FYERS_SECRET_KEY"
+    FYERS_CLIENT_ID = "FYERS_CLIENT_ID"
+    REDIRECT_URI = "REDIRECT_URI"
     
     if auth_code:
         session_model = fyersModel.SessionModel(
